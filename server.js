@@ -68,9 +68,11 @@ mongoose.connect('mongodb://127.0.0.1:27017/THINGSSWAGGER', {
 .then(() => {
   console.log('🎉 Connected to MongoDB');
 
-  const deviceRoutes = require('./routes/deviceRoutes');
-  app.use('/device', deviceRoutes);
+  const deviceRoutes = require('./Routes/deviceRoutes');
+  const CustomerRoutes = require('./Routes/CustomerRoutes');
 
+  app.use('/device', deviceRoutes);
+  app.use('/customers', CustomerRoutes);
   app.get('/', (req, res) => res.send('Hello World!'));
   app.get('/health', (req, res) => res.json({ success: true, timestamp: new Date() }));
 
