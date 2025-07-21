@@ -62,8 +62,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 
-
-mongoose.connect('mongodb+srv://10soniharsh12:<10soniharsh12>@cluster0.aaolrtn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
+mongoose.connect(process.env.MONGODB_URI ||'mongodb://127.0.0.1:27017/THINGSSWAGGER', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
