@@ -1,348 +1,316 @@
-const Device = require('../models/Device');
-const Customer = require('../models/Customer'); // Assuming you have a Customer model
+// const DeviceModel = require('../model/deviceModel');
+// const multer = require('multer');
+// const upload = multer({ dest: 'uploads/' }).single('file');
 
-// @desc    Get all devices
-// @route   GET /api/devices
-// @access  Public
-const getDevices = async (req, res) => {
+// const addDevice = async (req, res) => {
+//     try {
+//         const savedDevice = await DeviceModel.create(req.body);
+//         res.status(201).json({
+//             message: "Device added successfully",
+//             data: savedDevice,
+//         });
+//     } catch (err) {
+//         res.status(500).json({
+//             message: err.message
+//         });
+//     }
+// };
+
+// const getAllDevices = async (req, res) => {
+//     try {
+//         const devices = await DeviceModel.find();
+//         if (devices.length === 0) {
+//             res.status(404).json({
+//                 message: "No devices found"
+//             });
+//         } else {
+//             res.status(200).json({
+//                 message: "All devices fetched successfully",
+//                 data: devices,
+//             });
+//         }
+//     } catch (err) {
+//         res.status(500).json({
+//             message: err.message
+//         });
+//     }
+// };
+
+// const getAllDevicesByCustomerId = async (req, res) => {
+//     try {
+//         const devices = await DeviceModel.find({ customerId: req.params.customerId }).populate("customerId");
+//         if (devices.length === 0) {
+//             res.status(404).json({
+//                 message: "No devices found for this customer"
+//             });
+//         } else {
+//             res.status(200).json({
+//                 message: "All devices fetched successfully",
+//                 data: devices,
+//             });
+//         }
+//     } catch (err) {
+//         res.status(500).json({
+//             message: err.message
+//         });
+//     }
+// };
+
+// const getDeviceById = async (req, res) => {
+//     try {
+//         const device = await DeviceModel.findById(req.params.id).populate("customerId");
+//         if (!device) {
+//             res.status(404).json({
+//                 message: "Device not found"
+//             });
+//         } else {
+//             res.status(200).json({
+//                 message: "Device fetched successfully",
+//                 data: device,
+//             });
+//         }
+//     } catch (err) {
+//         res.status(500).json({
+//             message: err.message
+//         });
+//     }
+// };
+
+// const updateDevice = async (req, res) => {
+//     try {
+//         if (!req.params.id || req.params.id === ':id') {
+//             return res.status(400).json({
+//                 message: "Invalid ID provided",
+//                 error: "You must provide a valid MongoDB ID"
+//             });
+//         }
+
+//         const updatedDevice = await DeviceModel.findByIdAndUpdate(
+//             req.params.id,
+//             req.body,
+//             { new: true, runValidators: true }
+//         ).populate("customerId");
+
+//         if (!updatedDevice) {
+//             return res.status(404).json({
+//                 message: "Device not found"
+//             });
+//         }
+
+//         res.status(200).json({
+//             message: "Device updated successfully",
+//             data: updatedDevice
+//         });
+//     } catch (err) {
+//         console.error("Update error:", err);
+//         res.status(500).json({
+//             message: "Error updating device",
+//             error: err.message
+//         });
+//     }
+// };
+
+// const deleteDevice = async (req, res) => {
+//     console.log("Delete request received with ID:", req.params.id);
+
+//     try {
+//         if (!req.params.id || req.params.id === ':id') {
+//             return res.status(400).json({
+//                 message: "Invalid ID provided",
+//                 error: "You must provide a valid MongoDB ID"
+//             });
+//         }
+
+//         const deletedDevice = await DeviceModel.findByIdAndDelete(req.params.id);
+
+//         if (!deletedDevice) {
+//             return res.status(404).json({
+//                 message: "Device not found"
+//             });
+//         }
+
+//         res.status(200).json({
+//             message: "Device deleted successfully",
+//             deletedId: req.params.id
+//         });
+//     } catch (err) {
+//         console.error("Delete error:", err);
+//         res.status(500).json({
+//             message: "Error deleting device",
+//             error: err.message
+//         });
+//     }
+// };
+
+// const addDeviceWithFile = async (req, res) => {
+//     upload(req, res, async (err) => {
+//         if (err) {
+//             return res.status(500).json({
+//                 message: err.message
+//             });
+//         }
+
+//         try {
+//             console.log(req.body);
+
+//             // Check for required fields based on Device schema
+//             const requiredFields = ['name', 'label', 'deviceProfile'];
+
+//             const missingFields = [];
+
+//             requiredFields.forEach(field => {
+//                 if (req.body[field] === undefined || req.body[field] === '') {
+//                     missingFields.push(field);
+//                 }
+//             });
+
+//             if (missingFields.length > 0) {
+//                 return res.status(400).json({
+//                     message: `Missing required fields: ${missingFields.join(', ')}`
+//                 });
+//             }
+
+//             // Validate deviceProfile enum
+//             const validProfiles = [
+//                 'default', 'Air Quality Sensor', 'Charging Port', 
+//                 'Heat Sensor', 'sand Filter', 'Valve', 
+//                 'Water sensor', 'PH sensor'
+//             ];
+
+//             if (!validProfiles.includes(req.body.deviceProfile)) {
+//                 return res.status(400).json({
+//                     message: `Invalid device profile. Valid profiles are: ${validProfiles.join(', ')}`
+//                 });
+//             }
+
+//             // Handle file upload if needed (you can uncomment and modify this section if you need file upload)
+//             /*
+//             if (req.file) {
+//                 const cloudinaryResponse = await cloudinaryUtil.uploadFileToCloudinary(req.file);
+//                 console.log("Cloudinary upload response:", cloudinaryResponse);
+                
+//                 req.body.imagePath = cloudinaryResponse.secure_url;
+//                 console.log("Image path being saved:", req.body.imagePath);
+//             }
+//             */
+
+//             // Create device in database
+//             const createdDevice = await DeviceModel.create(req.body);
+
+//             res.status(201).json({
+//                 message: "Device created successfully",
+//                 data: createdDevice
+//             });
+//         } catch (err) {
+//             console.log(err);
+//             res.status(500).json({
+//                 message: "Error adding device",
+//                 data: err.message
+//             });
+//         }
+//     });
+// };
+
+// // Get devices by device profile
+// const getDevicesByProfile = async (req, res) => {
+//     try {
+//         const devices = await DeviceModel.find({ deviceProfile: req.params.profile }).populate("customerId");
+//         if (devices.length === 0) {
+//             res.status(404).json({
+//                 message: `No devices found with profile: ${req.params.profile}`
+//             });
+//         } else {
+//             res.status(200).json({
+//                 message: "Devices fetched successfully by profile",
+//                 data: devices,
+//             });
+//         }
+//     } catch (err) {
+//         res.status(500).json({
+//             message: err.message
+//         });
+//     }
+// };
+
+// // Get gateway devices
+// const getGatewayDevices = async (req, res) => {
+//     try {
+//         const devices = await DeviceModel.find({ isGateway: true }).populate("customerId");
+//         if (devices.length === 0) {
+//             res.status(404).json({
+//                 message: "No gateway devices found"
+//             });
+//         } else {
+//             res.status(200).json({
+//                 message: "Gateway devices fetched successfully",
+//                 data: devices,
+//             });
+//         }
+//     } catch (err) {
+//         res.status(500).json({
+//             message: err.message
+//         });
+//     }
+// };
+
+// module.exports = {
+//     addDevice,
+//     getAllDevices,
+//     getAllDevicesByCustomerId,
+//     getDeviceById,
+//     updateDevice,
+//     deleteDevice,
+//     addDeviceWithFile,
+//     getDevicesByProfile,
+//     getGatewayDevices
+// };
+
+const DeviceModel = require('../model/deviceModel');
+
+exports.addDevice = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-
-    // Build filter object
-    const filter = {};
-    if (req.query.customerId) filter.customerId = req.query.customerId;
-    if (req.query.deviceProfile) filter.deviceProfile = req.query.deviceProfile;
-    if (req.query.isGateway !== undefined) filter.isGateway = req.query.isGateway === 'true';
-    if (req.query.isActive !== undefined) filter.isActive = req.query.isActive === 'true';
-    if (req.query.search) {
-      filter.$or = [
-        { name: { $regex: req.query.search, $options: 'i' } },
-        { label: { $regex: req.query.search, $options: 'i' } },
-        { description: { $regex: req.query.search, $options: 'i' } }
-      ];
-    }
-
-    const devices = await Device.find(filter)
-      .populate('customer', 'title email')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    const total = await Device.countDocuments(filter);
-
-    res.json({
-      success: true,
-      data: devices,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-      error: error.message
-    });
+    const device = await DeviceModel.create(req.body);
+    res.status(201).json({ message: 'Device added successfully', data: device });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// @desc    Get single device
-// @route   GET /api/devices/:id
-// @access  Public
-const getDevice = async (req, res) => {
+exports.getAllDevices = async (req, res) => {
   try {
-    const device = await Device.findById(req.params.id).populate('customer', 'title email');
-
-    if (!device) {
-      return res.status(404).json({
-        success: false,
-        message: 'Device not found'
-      });
-    }
-
-    res.json({
-      success: true,
-      data: device
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-      error: error.message
-    });
+    const devices = await DeviceModel.find();
+    res.status(200).json({ message: 'Devices fetched', data: devices });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// @desc    Create device
-// @route   POST /api/devices
-// @access  Private
-const createDevice = async (req, res) => {
+exports.getDeviceById = async (req, res) => {
   try {
-    const {
-      name,
-      label,
-      deviceProfile,
-      isGateway,
-      customerId,
-      description,
-      isPublic,
-      isActive
-    } = req.body;
-
-    // Validate required fields
-    if (!name || !name.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Device name is required'
-      });
-    }
-
-    // Validate customer if provided
-    if (customerId) {
-      const customer = await Customer.findById(customerId);
-      if (!customer) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid customer ID'
-        });
-      }
-    }
-
-    // Check if device name already exists
-    const existingDevice = await Device.findOne({ name: name.trim() });
-    if (existingDevice) {
-      return res.status(400).json({
-        success: false,
-        message: 'Device with this name already exists'
-      });
-    }
-
-    const device = await Device.create({
-      name: name.trim(),
-      label: label?.trim(),
-      deviceProfile,
-      isGateway: isGateway || false,
-      customerId: customerId || null,
-      description: description?.trim(),
-      isPublic: isPublic || false,
-      isActive: isActive !== undefined ? isActive : true
-    });
-
-    // Populate customer data before sending response
-    await device.populate('customer', 'title email');
-
-    res.status(201).json({
-      success: true,
-      data: device,
-      message: 'Device created successfully'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-      error: error.message
-    });
+    const device = await DeviceModel.findById(req.params.id);
+    if (!device) return res.status(404).json({ message: 'Device not found' });
+    res.status(200).json({ message: 'Device fetched', data: device });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// @desc    Update device
-// @route   PUT /api/devices/:id
-// @access  Private
-const updateDevice = async (req, res) => {
+exports.updateDevice = async (req, res) => {
   try {
-    const {
-      name,
-      label,
-      deviceProfile,
-      isGateway,
-      customerId,
-      description,
-      isPublic,
-      isActive
-    } = req.body;
-
-    // Check if device exists
-    let device = await Device.findById(req.params.id);
-    if (!device) {
-      return res.status(404).json({
-        success: false,
-        message: 'Device not found'
-      });
-    }
-
-    // Validate required fields
-    if (!name || !name.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Device name is required'
-      });
-    }
-
-    // Validate customer if provided
-    if (customerId) {
-      const customer = await Customer.findById(customerId);
-      if (!customer) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid customer ID'
-        });
-      }
-    }
-
-    // Check if device name already exists (excluding current device)
-    const existingDevice = await Device.findOne({ 
-      name: name.trim(),
-      _id: { $ne: req.params.id }
-    });
-    if (existingDevice) {
-      return res.status(400).json({
-        success: false,
-        message: 'Device with this name already exists'
-      });
-    }
-
-    // Update device
-    device = await Device.findByIdAndUpdate(
-      req.params.id,
-      {
-        name: name.trim(),
-        label: label?.trim(),
-        deviceProfile,
-        isGateway: isGateway || false,
-        customerId: customerId || null,
-        description: description?.trim(),
-        isPublic: isPublic || false,
-        isActive: isActive !== undefined ? isActive : true
-      },
-      { new: true, runValidators: true }
-    ).populate('customer', 'title email');
-
-    res.json({
-      success: true,
-      data: device,
-      message: 'Device updated successfully'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-      error: error.message
-    });
+    const device = await DeviceModel.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!device) return res.status(404).json({ message: 'Device not found' });
+    res.status(200).json({ message: 'Device updated', data: device });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// @desc    Delete device
-// @route   DELETE /api/devices/:id
-// @access  Private
-const deleteDevice = async (req, res) => {
+exports.deleteDevice = async (req, res) => {
   try {
-    const device = await Device.findById(req.params.id);
-
-    if (!device) {
-      return res.status(404).json({
-        success: false,
-        message: 'Device not found'
-      });
-    }
-
-    await Device.findByIdAndDelete(req.params.id);
-
-    res.json({
-      success: true,
-      message: 'Device deleted successfully'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-      error: error.message
-    });
+    const device = await DeviceModel.findByIdAndDelete(req.params.id);
+    if (!device) return res.status(404).json({ message: 'Device not found' });
+    res.status(200).json({ message: 'Device deleted', deletedId: device._id });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-};
-
-// @desc    Toggle device active status
-// @route   PATCH /api/devices/:id/toggle-status
-// @access  Private
-const toggleDeviceStatus = async (req, res) => {
-  try {
-    const device = await Device.findById(req.params.id);
-
-    if (!device) {
-      return res.status(404).json({
-        success: false,
-        message: 'Device not found'
-      });
-    }
-
-    device.isActive = !device.isActive;
-    await device.save();
-
-    res.json({
-      success: true,
-      data: device,
-      message: `Device ${device.isActive ? 'activated' : 'deactivated'} successfully`
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-      error: error.message
-    });
-  }
-};
-
-// @desc    Get devices by customer
-// @route   GET /api/devices/customer/:customerId
-// @access  Public
-const getDevicesByCustomer = async (req, res) => {
-  try {
-    const devices = await Device.findByCustomer(req.params.customerId);
-
-    res.json({
-      success: true,
-      data: devices
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-      error: error.message
-    });
-  }
-};
-
-// @desc    Get gateway devices
-// @route   GET /api/devices/gateways
-// @access  Public
-const getGatewayDevices = async (req, res) => {
-  try {
-    const devices = await Device.findGateways();
-
-    res.json({
-      success: true,
-      data: devices
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-      error: error.message
-    });
-  }
-};
-
-module.exports = {
-  getDevices,
-  getDevice,
-  createDevice,
-  updateDevice,
-  deleteDevice,
-  toggleDeviceStatus,
-  getDevicesByCustomer,
-  getGatewayDevices
 };
